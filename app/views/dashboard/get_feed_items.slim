@@ -1,0 +1,48 @@
+h3 Welcome #{@user.name}
+table
+  tr
+    td 
+      b = "Add Subscriptions "       
+      = form_tag add_subscription_path, method: :get do
+      	.input-append
+					= text_field_tag :rss
+					= submit_tag 'Add', {class: "btn add_btn" }
+      br
+      b = "Subscriptions : "
+      br
+      br
+      - unless @subscriptions.empty?
+        - @subscriptions.each do |subscription|    
+          - if subscription.unread_count == 0
+            = link_to subscription.title+ " ( rss feed is not up to date ) ", get_feed_items_path(url: subscription.url)
+          - else
+          	= link_to subscription.title, get_feed_items_path(url: subscription.url)
+          br
+          b = "Unread Items : "
+          = subscription.unread_count
+          br
+          = link_to "delete subscriptions", delete_subscription_path(url: subscription.url), class: "btn"
+
+          br
+          br
+
+hr
+
+table              
+  tr
+    td   
+      b = "Items"
+      br
+      - if @items
+        - @items.each do |item|      
+          b = link_to item.entry["title"].html_safe, item.entry["alternate"].first["href"], target: "_blank" rescue nil
+          br
+          = item.entry["summary"]["content"].html_safe rescue nil    
+          br
+          = "Publish : "
+          = Time.at(item.entry["published"]).strftime("%d %m %Y")
+          br
+          = distance_of_time_in_words(Time.at(item.entry["published"]), Time.now) 
+          = " ago"
+          br
+          br  
